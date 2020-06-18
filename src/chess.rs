@@ -41,7 +41,8 @@ pub struct ChessPiece {
     position: (i32, i32),
     piece_type: PieceType,
     color: Colors,
-    in_play: bool
+    in_play: bool,
+    has_moved: bool
 }
 
 impl ChessPiece {
@@ -51,55 +52,18 @@ impl ChessPiece {
             piece_type,
             color,
             in_play: true,
+            has_moved: false
         }
     }
 }
 
 impl std::fmt::Display for ChessPiece {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{:?} [{},{}] {:?} {}", self.piece_type, self.position.0, self.position.1, self.color, self.in_play  )
-    }
-}
-
-#[derive(Clone)]
-pub struct Location {
-    current_piece: *const ChessPiece,
-}
-
-impl Location{
-    pub fn new (current_piece: *const ChessPiece) -> Location {
-        Location {
-            current_piece
-        }
-    }
-}
-
-impl std::fmt::Display for Location {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "")
-    }
-}
-
-pub struct ChessBoard {
-    locations: Vec<Location>,
-}
-
-impl ChessBoard {
-    pub fn new () -> ChessBoard {
-        ChessBoard {
-            locations: Vec::new(),
-        }
-    } 
-}
-
-impl std::fmt::Display for ChessBoard {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "")
+        write!(f, "{:?} {:?}", self.color, self.piece_type)
     }
 }
 
 pub struct ChessGame {
-    pub board: ChessBoard,
     pub pieces: Vec<ChessPiece>,
     pub turns: i32,
 }
@@ -112,98 +76,75 @@ Create a function that creates a new chess game
 */
 
 impl ChessGame {
-    pub fn new () -> ChessGame {
+    pub fn new() -> ChessGame {
         let mut new_game = ChessGame {
-           board: ChessBoard::new(),
            pieces: Vec::new(),
            turns: 1
         };
 
         // The coordinates start in the bottom left and increase with y vertically and x horizontally.
 
-        let mut temp = Self::init_game_piece(&mut new_game, (0,0), PieceType::Rook, Colors::White);
-        new_game.pieces.push(temp);
-        temp = Self::init_game_piece(&mut new_game, (0,7), PieceType::Rook, Colors::Black);
-        new_game.pieces.push(temp);
+        Self::init_game_piece(&mut new_game, (0,0), PieceType::Rook, Colors::White);
+        Self::init_game_piece(&mut new_game, (0,7), PieceType::Rook, Colors::Black);
 
-        temp = Self::init_game_piece(&mut new_game, (1,7), PieceType::Knight, Colors::Black);
-        new_game.pieces.push(temp);
-        temp = Self::init_game_piece(&mut new_game, (1,0), PieceType::Knight, Colors::White);
-        new_game.pieces.push(temp);
+        Self::init_game_piece(&mut new_game, (1,7), PieceType::Knight, Colors::Black);
+        Self::init_game_piece(&mut new_game, (1,0), PieceType::Knight, Colors::White);
 
-        temp = Self::init_game_piece(&mut new_game, (2,0), PieceType::Bishop, Colors::White);
-        new_game.pieces.push(temp);
-        temp = Self::init_game_piece(&mut new_game, (2,7), PieceType::Bishop, Colors::Black);
-        new_game.pieces.push(temp);
+        Self::init_game_piece(&mut new_game, (2,0), PieceType::Bishop, Colors::White);
+        Self::init_game_piece(&mut new_game, (2,7), PieceType::Bishop, Colors::Black);
 
-        temp = Self::init_game_piece(&mut new_game, (3,0), PieceType::Queen, Colors::White);
-        new_game.pieces.push(temp);
-        temp = Self::init_game_piece(&mut new_game, (3,7), PieceType::Queen, Colors::Black);
-        new_game.pieces.push(temp);
+        Self::init_game_piece(&mut new_game, (3,0), PieceType::Queen, Colors::White);
+        Self::init_game_piece(&mut new_game, (3,7), PieceType::Queen, Colors::Black);
 
-        temp = Self::init_game_piece(&mut new_game, (4,0), PieceType::King, Colors::White);
-        new_game.pieces.push(temp);
-        temp = Self::init_game_piece(&mut new_game, (4,7), PieceType::King, Colors::Black);
-        new_game.pieces.push(temp);
+        Self::init_game_piece(&mut new_game, (4,0), PieceType::King, Colors::White);
+        Self::init_game_piece(&mut new_game, (4,7), PieceType::King, Colors::Black);
 
-        temp = Self::init_game_piece(&mut new_game, (5,0), PieceType::Bishop, Colors::White);
-        new_game.pieces.push(temp);
-        temp = Self::init_game_piece(&mut new_game, (5,7), PieceType::Bishop, Colors::Black);
-        new_game.pieces.push(temp);
+        Self::init_game_piece(&mut new_game, (5,0), PieceType::Bishop, Colors::White);
+        Self::init_game_piece(&mut new_game, (5,7), PieceType::Bishop, Colors::Black);
 
-        temp = Self::init_game_piece(&mut new_game, (6,0), PieceType::Knight, Colors::White);
-        new_game.pieces.push(temp);
-        temp = Self::init_game_piece(&mut new_game, (6,7), PieceType::Knight, Colors::Black);
-        new_game.pieces.push(temp);
+        Self::init_game_piece(&mut new_game, (6,0), PieceType::Knight, Colors::White);
+        Self::init_game_piece(&mut new_game, (6,7), PieceType::Knight, Colors::Black);
 
-        temp = Self::init_game_piece(&mut new_game, (7,0), PieceType::Rook, Colors::White);
-        new_game.pieces.push(temp);
-        temp = Self::init_game_piece(&mut new_game, (7,7), PieceType::Rook, Colors::Black);
-        new_game.pieces.push(temp);
+        Self::init_game_piece(&mut new_game, (7,0), PieceType::Rook, Colors::White);
+        Self::init_game_piece(&mut new_game, (7,7), PieceType::Rook, Colors::Black);
 
         for i in 0..8 {
-            temp = Self::init_game_piece(&mut new_game, (i, 1), PieceType::Pawn, Colors::White);
-            new_game.pieces.push(temp);
-            temp = Self::init_game_piece(&mut new_game, (i, 6), PieceType::Pawn, Colors::Black);
-            new_game.pieces.push(temp);
+            Self::init_game_piece(&mut new_game, (i, 1), PieceType::Pawn, Colors::White);
+            Self::init_game_piece(&mut new_game, (i, 6), PieceType::Pawn, Colors::Black);
         }
 
         return new_game;
     }
 
-    fn init_game_piece(_game: &mut ChessGame, coord: (i32,i32), piece_type: PieceType, color: Colors) -> ChessPiece {
+    fn init_game_piece(game: &mut ChessGame, coord: (i32,i32), piece_type: PieceType, color: Colors) {
         
         let temp = ChessPiece::new(coord, piece_type, color);
-        return temp;
+        game.pieces.push(temp);
     }
 
     pub fn print_board(&self) {
         for i in 0..8 {
-            print!("{} ", 8-i);
+            print!("{} |", 8-i);
             for j in 0..8 {
-                // if Self::get_piece_at_position(self, (j,i)) {
-                //     print!("X ");
-                // } else {
-                //     print!("O ");
-                // }
-                print!("{} ", Self::get_symbol_at_position(self, (j,i)));
+                print!("[{}]", Self::get_symbol_at_position(self, (j,i)));
             }
             println!();
         }
 
         print!("  ");
         for i in 0..8 {
-            print!("{} ", ASCII_LOWER[i]);
+            print!("  {}", ASCII_LOWER[i]);
         }
+        println!();
     }
 
-    pub fn get_piece_at_position(&self, coords: (i32, i32)) -> bool {
+    pub fn get_piece_at_position(&self, coords: (i32, i32)) -> Result<&ChessPiece, &'static str> {
         for elem in &self.pieces {
             if elem.position == coords {
-                return true;
+                return Ok(elem);
             }
         }
-        return false;
+        return Err("No Piece at given position.");
     }
 
     pub fn get_symbol_at_position(&self, coords: (i32, i32)) -> char {
@@ -212,7 +153,40 @@ impl ChessGame {
                 return convert_piece_to_symbol(elem);
             }
         }
-        return 'O';
+        return ' ';
+    }
+
+    // Check for piece at curren location and move it to the new location if it is not occupied.
+    pub fn move_piece(&self, curr: (char,char), mov: (char, char)) {
+        //Convert coords to internal system.
+        let curr_internal = convert_user_coord(curr);
+        let mov_internal = convert_user_coord(mov);
+
+        // First check there is a piece at curr.
+        let ret = Self::get_piece_at_position(self, curr_internal);
+        let _piece: ChessPiece = ChessPiece::new((-1,-1), PieceType::Pawn, Colors::Black);
+        match ret {
+            Ok(p) => {
+                print!("{} ({},{}) To ", p, curr.0, curr.1);
+            },
+            Err(_) => {
+                println!("There is no piece at ({},{})", curr.0,curr.1);
+                return;
+            }
+        };
+
+        // Second check that there is open space at mov
+        let space = Self::get_piece_at_position(self, mov_internal);
+        match space {
+            Err(_) => println!("({},{})", mov.0,mov.1),
+            Ok(p) => {
+                println!("There is a piece at ({},{}) {}", mov.0, mov.1, p);
+                return;
+            }
+        };
+
+        //Update the piece
+        //piece.position = mov_internal;
     }
 }
 
@@ -222,7 +196,7 @@ impl std::fmt::Display for ChessGame {
     }
 }
 
-pub fn convert_piece_to_string (piece: ChessPiece, ) -> String {
+pub fn _convert_piece_to_string (piece: ChessPiece, ) -> String {
     let piece_type = format!("{:?}", piece.piece_type);
     let (first, _) = piece_type.split_at(2);
     let piece_name = first.to_string();
@@ -234,4 +208,21 @@ pub fn convert_piece_to_symbol (piece: &ChessPiece) -> char {
     let raw_index = piece.piece_type as usize + 6*piece.color as usize;
 
     return SYMBOL_MAP[raw_index];
+}
+
+// Converts the coords as seen by the user into the coordinate system used by the program.
+pub fn convert_user_coord (coord: (char,char)) -> (i32,i32){
+    let mut x = -1;
+    for (index,elem) in ASCII_LOWER.iter().enumerate() {
+        if coord.0 == *elem {
+            x = index as i32;
+        }
+    }
+    let mut y: i32 = -1;
+    match coord.1.to_digit(10) {
+        Some(inner) => y = inner as i32,
+        None => println!("Somehow got a coord that could not convert in \'convert_user_coord\'")
+    };
+
+    return (x, y - 1);
 }
