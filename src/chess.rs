@@ -38,7 +38,7 @@ pub enum Colors {
 
 #[derive(Debug)]
 pub struct ChessPiece {
-    position: (i32, i32),
+    position:  (i32, i32),
     piece_type: PieceType,
     color: Colors,
     in_play: bool,
@@ -54,6 +54,10 @@ impl ChessPiece {
             in_play: true,
             has_moved: false
         }
+    }
+
+    pub fn update_position(mut self, position: (i32, i32)) {
+        self.position = position;
     }
 }
 
@@ -83,7 +87,6 @@ impl ChessGame {
         };
 
         // The coordinates start in the bottom left and increase with y vertically and x horizontally.
-
         Self::init_game_piece(&mut new_game, (0,0), PieceType::Rook, Colors::White);
         Self::init_game_piece(&mut new_game, (0,7), PieceType::Rook, Colors::Black);
 
@@ -126,7 +129,7 @@ impl ChessGame {
         for i in 0..8 {
             print!("{} |", 8-i);
             for j in 0..8 {
-                print!("[{}]", Self::get_symbol_at_position(self, (j,i)));
+                print!("[{}]", self.get_symbol_at_position((j,i)));
             }
             println!();
         }
@@ -153,18 +156,18 @@ impl ChessGame {
                 return convert_piece_to_symbol(elem);
             }
         }
-        return ' ';
+        return '■';
     }
 
     // Check for piece at curren location and move it to the new location if it is not occupied.
-    pub fn move_piece(&self, curr: (char,char), mov: (char, char)) {
+    pub fn move_piece(&mut self, curr: (char,char), mov: (char, char)) {
         //Convert coords to internal system.
         let curr_internal = convert_user_coord(curr);
         let mov_internal = convert_user_coord(mov);
 
         // First check there is a piece at curr.
-        let ret = Self::get_piece_at_position(self, curr_internal);
-        let _piece: ChessPiece = ChessPiece::new((-1,-1), PieceType::Pawn, Colors::Black);
+        let ret = self.get_piece_at_position(curr_internal);
+        let mut piece: ChessPiece = ChessPiece::new((-1,-1), PieceType::Pawn, Colors::Black);
         match ret {
             Ok(p) => {
                 print!("{} ({},{}) To ", p, curr.0, curr.1);
@@ -176,7 +179,7 @@ impl ChessGame {
         };
 
         // Second check that there is open space at mov
-        let space = Self::get_piece_at_position(self, mov_internal);
+        let space = self.get_piece_at_position(mov_internal);
         match space {
             Err(_) => println!("({},{})", mov.0,mov.1),
             Ok(p) => {
@@ -186,7 +189,12 @@ impl ChessGame {
         };
 
         //Update the piece
-        //piece.position = mov_internal;
+        for i in 0..33 {
+            if self.pieces[i].position == curr_internal {
+                self.pieces[i].position = mov_internal;//update_position(mov_internal);
+                return;
+            }
+        }
     }
 }
 
