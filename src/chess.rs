@@ -58,6 +58,36 @@ impl ChessPiece {
 
     pub fn update_position(&mut self, position: (i32, i32)) {
         self.position = position;
+        if self.has_moved != true {self.has_moved = true;}
+    }
+
+    pub fn get_possible_moves(&self) -> Vec<(i32,i32)> {
+        match self.piece_type {
+            PieceType::King => {
+                let moves = Vec::new();
+                return moves;
+            },
+            PieceType::Queen => {
+                let moves = Vec::new();
+                return moves;
+            },
+            PieceType::Knight => {
+                let moves = Vec::new();
+                return moves;
+            },
+            PieceType::Bishop => {
+                let moves = Vec::new();
+                return moves;
+            },
+            PieceType::Rook => {
+                let moves = Vec::new();
+                return moves;
+            },
+            PieceType::Pawn => {
+                let moves = Vec::new();
+                return moves;
+            },
+        }
     }
 }
 
@@ -231,5 +261,5 @@ pub fn convert_user_coord (coord: (char,char)) -> (i32,i32){
         None => println!("Somehow got a coord that could not convert in \'convert_user_coord\'")
     };
 
-    return (x, y - 1);
+    return (x, 8 - y);
 }
