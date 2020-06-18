@@ -56,7 +56,7 @@ impl ChessPiece {
         }
     }
 
-    pub fn update_position(mut self, position: (i32, i32)) {
+    pub fn update_position(&mut self, position: (i32, i32)) {
         self.position = position;
     }
 }
@@ -167,7 +167,6 @@ impl ChessGame {
 
         // First check there is a piece at curr.
         let ret = self.get_piece_at_position(curr_internal);
-        let mut piece: ChessPiece = ChessPiece::new((-1,-1), PieceType::Pawn, Colors::Black);
         match ret {
             Ok(p) => {
                 print!("{} ({},{}) To ", p, curr.0, curr.1);
@@ -191,7 +190,7 @@ impl ChessGame {
         //Update the piece
         for i in 0..33 {
             if self.pieces[i].position == curr_internal {
-                self.pieces[i].position = mov_internal;//update_position(mov_internal);
+                self.pieces[i].update_position(mov_internal);
                 return;
             }
         }
