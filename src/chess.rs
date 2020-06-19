@@ -56,6 +56,10 @@ impl ChessPiece {
         }
     }
 
+    pub fn get_null_piece() -> ChessPiece {
+        return ChessPiece::new((-1, -1), PieceType::Pawn, Colors::Black)
+    }
+
     pub fn update_position(&mut self, position: (i32, i32)) {
         self.position = position;
         if self.has_moved != true {self.has_moved = true;}
@@ -64,27 +68,57 @@ impl ChessPiece {
     pub fn get_possible_moves(&self) -> Vec<(i32,i32)> {
         match self.piece_type {
             PieceType::King => {
-                let moves = Vec::new();
+                let mut moves = Vec::new();
+
+                let mov1 = (self.position.0, self.position.1+1);
+                moves.push(mov1);
+
+                let mov2 = (self.position.0+1, self.position.1+1);
+                moves.push(mov2);
+
+                let mov3 = (self.position.0+1, self.position.1);
+                moves.push(mov3);
+
+                let mov4 = (self.position.0+1, self.position.1-1);
+                moves.push(mov4);
+
+                let mov5 = (self.position.0, self.position.1-1);
+                moves.push(mov5);
+
+                let mov6 = (self.position.0-1, self.position.1-1);
+                moves.push(mov6);
+
+                let mov7 = (self.position.0-1, self.position.1);
+                moves.push(mov7);
+
+                let mov8 = (self.position.0-1, self.position.1+1);
+                moves.push(mov8);
+
                 return moves;
             },
             PieceType::Queen => {
                 let moves = Vec::new();
+                println!("{},{}", self.position.0, self.position.1);
                 return moves;
             },
             PieceType::Knight => {
                 let moves = Vec::new();
+                println!("{},{}", self.position.0, self.position.1);
                 return moves;
             },
             PieceType::Bishop => {
                 let moves = Vec::new();
+                println!("{},{}", self.position.0, self.position.1);
                 return moves;
             },
             PieceType::Rook => {
                 let moves = Vec::new();
+                println!("{},{}", self.position.0, self.position.1);
                 return moves;
             },
             PieceType::Pawn => {
                 let moves = Vec::new();
+                println!("{},{}", self.position.0, self.position.1);
                 return moves;
             },
         }
@@ -186,7 +220,7 @@ impl ChessGame {
                 return convert_piece_to_symbol(elem);
             }
         }
-        return '■';
+        return ' '; // ■
     }
 
     // Check for piece at curren location and move it to the new location if it is not occupied.
@@ -216,6 +250,18 @@ impl ChessGame {
                 return;
             }
         };
+
+        
+
+        // Check that the move is legal.
+        let def_piece = &ChessPiece::get_null_piece();
+        let piece = ret.unwrap_or(def_piece);
+        let moves = piece.get_possible_moves();
+        if !moves.contains(&mov_internal) {
+            println!("Illegal move");
+        }
+
+        println!("Moves: {:?}", moves);
 
         //Update the piece
         for i in 0..33 {
