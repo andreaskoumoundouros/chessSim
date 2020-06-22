@@ -56,7 +56,7 @@ impl ChessPiece {
         }
     }
 
-    pub fn get_null_piece() -> ChessPiece {
+    pub fn _get_null_piece() -> ChessPiece {
         return ChessPiece::new((-1, -1), PieceType::Pawn, Colors::Black)
     }
 
