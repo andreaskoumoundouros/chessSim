@@ -1,3 +1,3 @@
 Chess is an intense game of strategy!
 
-A chess game written in Rust.
+A chess game/engine written in Rust.
