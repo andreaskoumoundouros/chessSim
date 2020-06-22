@@ -24,6 +24,10 @@ fn main() {
             continue;
         }
 
-        game.move_piece((coords[0],coords[1]), (coords[2],coords[3]));
+        let ret = game.move_piece((coords[0],coords[1]), (coords[2],coords[3]));
+        match ret {
+            Ok(_) => {}
+            Err(e) => {println!("{}", e);}
+        }
     }
 }

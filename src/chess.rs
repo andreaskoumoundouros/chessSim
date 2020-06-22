@@ -65,6 +65,8 @@ impl ChessPiece {
         if self.has_moved != true {self.has_moved = true;}
     }
 
+    // TODO: When generating moves ensure that the path is clear
+    // i.e. there isnt a same colour piece in the way etc..
     pub fn get_possible_moves(&self) -> Vec<(i32,i32)> {
         match self.piece_type {
             PieceType::King => {
@@ -97,28 +99,219 @@ impl ChessPiece {
                 return moves;
             },
             PieceType::Queen => {
-                let moves = Vec::new();
+                let mut moves = Vec::new();
+
+                // Up
+                for i in 1..8 {
+                    if self.position.1 + i < 8 {
+                        let mov = (self.position.0, self.position.1 + i);
+                        moves.push(mov);
+                    } else {
+                        break;
+                    }
+                }
+
+                // Down
+                for i in 1..8 {
+                    if self.position.1 - i >= 0 {
+                        let mov = (self.position.0, self.position.1 - i);
+                        moves.push(mov);
+                    } else {
+                        break;
+                    }
+                }
+
+                // Left
+                for i in 1..8 {
+                    if self.position.0 - i >= 0 {
+                        let mov = (self.position.0 - i, self.position.1);
+                        moves.push(mov);
+                    } else {
+                        break;
+                    }
+                }
+
+                // Right
+                for i in 1..8 {
+                    if self.position.0 + i < 8 {
+                        let mov = (self.position.0 + i, self.position.1);
+                        moves.push(mov);
+                    } else {
+                        break;
+                    }
+                }
+
+                // Top Right
+                for i in 1..8 {
+                    if self.position.1 + i < 8 {
+                        let mov = (self.position.0 + i, self.position.1 + i);
+                        moves.push(mov);
+                    } else {
+                        break;
+                    }
+                }
+
+                // Bottom Right
+                for i in 1..8 {
+                    if self.position.1 - i >= 0 {
+                        let mov = (self.position.0 + i, self.position.1 - i);
+                        moves.push(mov);
+                    } else {
+                        break;
+                    }
+                }
+
+                // Bottom Left
+                for i in 1..8 {
+                    if self.position.0 - i >= 0 {
+                        let mov = (self.position.0 - i, self.position.1 - i);
+                        moves.push(mov);
+                    } else {
+                        break;
+                    }
+                }
+
+                // Top Left
+                for i in 1..8 {
+                    if self.position.0 + i < 8 {
+                        let mov = (self.position.0 - i, self.position.1 + i);
+                        moves.push(mov);
+                    } else {
+                        break;
+                    }
+                }
+
                 println!("{},{}", self.position.0, self.position.1);
                 return moves;
             },
             PieceType::Knight => {
-                let moves = Vec::new();
-                println!("{},{}", self.position.0, self.position.1);
+                let mut moves = Vec::new();
+                
+                let mov1 = (self.position.0+1, self.position.1+2);
+                moves.push(mov1);
+
+                let mov2 = (self.position.0-1, self.position.1+2);
+                moves.push(mov2);
+
+                let mov3 = (self.position.0+2, self.position.1+1);
+                moves.push(mov3);
+
+                let mov4 = (self.position.0+2, self.position.1-1);
+                moves.push(mov4);
+
+                let mov5 = (self.position.0+1, self.position.1-2);
+                moves.push(mov5);
+
+                let mov6 = (self.position.0-1, self.position.1-2);
+                moves.push(mov6);
+
+                let mov7 = (self.position.0-2, self.position.1+1);
+                moves.push(mov7);
+
+                let mov8 = (self.position.0-2, self.position.1-1);
+                moves.push(mov8);
                 return moves;
             },
             PieceType::Bishop => {
-                let moves = Vec::new();
-                println!("{},{}", self.position.0, self.position.1);
+                let mut moves = Vec::new();
+                
+                // Top Right
+                for i in 1..8 {
+                    if self.position.1 + i < 8 {
+                        let mov = (self.position.0 + i, self.position.1 + i);
+                        moves.push(mov);
+                    } else {
+                        break;
+                    }
+                }
+
+                // Bottom Right
+                for i in 1..8 {
+                    if self.position.1 - i >= 0 {
+                        let mov = (self.position.0 + i, self.position.1 - i);
+                        moves.push(mov);
+                    } else {
+                        break;
+                    }
+                }
+
+                // Bottom Left
+                for i in 1..8 {
+                    if self.position.0 - i >= 0 {
+                        let mov = (self.position.0 - i, self.position.1 - i);
+                        moves.push(mov);
+                    } else {
+                        break;
+                    }
+                }
+
+                // Top Left
+                for i in 1..8 {
+                    if self.position.0 + i < 8 {
+                        let mov = (self.position.0 - i, self.position.1 + i);
+                        moves.push(mov);
+                    } else {
+                        break;
+                    }
+                }
+
                 return moves;
             },
             PieceType::Rook => {
-                let moves = Vec::new();
-                println!("{},{}", self.position.0, self.position.1);
+                let mut moves = Vec::new();
+
+                // Up
+                for i in 1..8 {
+                    if self.position.1 + i < 8 {
+                        let mov = (self.position.0, self.position.1 + i);
+                        moves.push(mov);
+                    } else {
+                        break;
+                    }
+                }
+
+                // Down
+                for i in 1..8 {
+                    if self.position.1 - i >= 0 {
+                        let mov = (self.position.0, self.position.1 - i);
+                        moves.push(mov);
+                    } else {
+                        break;
+                    }
+                }
+
+                // Left
+                for i in 1..8 {
+                    if self.position.0 - i >= 0 {
+                        let mov = (self.position.0 - i, self.position.1);
+                        moves.push(mov);
+                    } else {
+                        break;
+                    }
+                }
+
+                // Right
+                for i in 1..8 {
+                    if self.position.0 + i < 8 {
+                        let mov = (self.position.0 + i, self.position.1);
+                        moves.push(mov);
+                    } else {
+                        break;
+                    }
+                }
+
                 return moves;
             },
             PieceType::Pawn => {
-                let moves = Vec::new();
-                println!("{},{}", self.position.0, self.position.1);
+                let mut moves = Vec::new();
+
+                if !self.has_moved {
+                    let mov = (self.position.0, self.position.1 + 2);
+                    moves.push(mov);
+                }
+
+                let mov = (self.position.0, self.position.1 + 1);
+                moves.push(mov);
                 return moves;
             },
         }
@@ -224,22 +417,13 @@ impl ChessGame {
     }
 
     // Check for piece at curren location and move it to the new location if it is not occupied.
-    pub fn move_piece(&mut self, curr: (char,char), mov: (char, char)) {
+    pub fn move_piece(&mut self, curr: (char,char), mov: (char, char)) -> Result<bool, &'static str> {
         //Convert coords to internal system.
         let curr_internal = convert_user_coord(curr);
         let mov_internal = convert_user_coord(mov);
 
         // First check there is a piece at curr.
-        let ret = self.get_piece_at_position(curr_internal);
-        match ret {
-            Ok(p) => {
-                print!("{} ({},{}) To ", p, curr.0, curr.1);
-            },
-            Err(_) => {
-                println!("There is no piece at ({},{})", curr.0,curr.1);
-                return;
-            }
-        };
+        let ret = self.get_piece_at_position(curr_internal)?;
 
         // Second check that there is open space at mov
         let space = self.get_piece_at_position(mov_internal);
@@ -247,18 +431,14 @@ impl ChessGame {
             Err(_) => println!("({},{})", mov.0,mov.1),
             Ok(p) => {
                 println!("There is a piece at ({},{}) {}", mov.0, mov.1, p);
-                return;
+                return Err("There is a piece at the selected move location.");
             }
         };
 
-        
-
         // Check that the move is legal.
-        let def_piece = &ChessPiece::get_null_piece();
-        let piece = ret.unwrap_or(def_piece);
-        let moves = piece.get_possible_moves();
+        let moves = ret.get_possible_moves();
         if !moves.contains(&mov_internal) {
-            println!("Illegal move");
+            return Err("Illegal move.");
         }
 
         println!("Moves: {:?}", moves);
@@ -267,9 +447,13 @@ impl ChessGame {
         for i in 0..33 {
             if self.pieces[i].position == curr_internal {
                 self.pieces[i].update_position(mov_internal);
-                return;
+                self.pieces[i].has_moved = true;
+                println!("Moving Piece...");
+                return Ok(true);
             }
         }
+
+        return Err("Failed to find piece...");
     }
 }
 
