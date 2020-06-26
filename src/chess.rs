@@ -68,9 +68,10 @@ impl ChessPiece {
     // TODO: When generating moves ensure that the path is clear
     // i.e. there isnt a same colour piece in the way etc..
     pub fn get_possible_moves(&self) -> Vec<(i32,i32)> {
+        let mut moves = Vec::new();
+
         match self.piece_type {
             PieceType::King => {
-                let mut moves = Vec::new();
 
                 let mov1 = (self.position.0, self.position.1+1);
                 moves.push(mov1);
@@ -96,10 +97,8 @@ impl ChessPiece {
                 let mov8 = (self.position.0-1, self.position.1+1);
                 moves.push(mov8);
 
-                return moves;
             },
             PieceType::Queen => {
-                let mut moves = Vec::new();
 
                 // Up
                 for i in 1..8 {
@@ -182,10 +181,8 @@ impl ChessPiece {
                 }
 
                 println!("{},{}", self.position.0, self.position.1);
-                return moves;
             },
             PieceType::Knight => {
-                let mut moves = Vec::new();
                 
                 let mov1 = (self.position.0+1, self.position.1+2);
                 moves.push(mov1);
@@ -210,10 +207,8 @@ impl ChessPiece {
 
                 let mov8 = (self.position.0-2, self.position.1-1);
                 moves.push(mov8);
-                return moves;
             },
             PieceType::Bishop => {
-                let mut moves = Vec::new();
                 
                 // Top Right
                 for i in 1..8 {
@@ -255,10 +250,8 @@ impl ChessPiece {
                     }
                 }
 
-                return moves;
             },
             PieceType::Rook => {
-                let mut moves = Vec::new();
 
                 // Up
                 for i in 1..8 {
@@ -299,11 +292,8 @@ impl ChessPiece {
                         break;
                     }
                 }
-
-                return moves;
             },
             PieceType::Pawn => {
-                let mut moves = Vec::new();
                 let mut modifier = 1;
                 if self.color == Colors::Black {modifier = -1;}
 
@@ -316,9 +306,18 @@ impl ChessPiece {
 
                 let mov = (self.position.0, self.position.1 + 1*modifier);
                 moves.push(mov);
-                return moves;
             },
         }
+
+
+        let mut valid_moves = Vec::new();
+        for elem in moves {
+            if coord_on_board(&elem) {
+                valid_moves.push(elem)
+            }
+        }
+
+        return valid_moves;
     }
 }
 
@@ -433,16 +432,22 @@ impl ChessGame {
         let space = self.get_piece_at_position(mov_internal);
         match space {
             Err(_) => println!("({},{})", mov.0,mov.1),
-            Ok(p) => {
-                println!("There is a piece at ({},{}) {}", mov.0, mov.1, p);
+            Ok(_) => {
                 return Err("There is a piece at the selected move location.");
             }
         };
 
         // Check that the move is legal.
         let moves = ret.get_possible_moves();
-        if !moves.contains(&mov_internal) {
+        if !moves.contains(&mov_internal) || !coord_on_board(&mov_internal) {
             return Err("Illegal move.");
+        }
+
+        let path = self.check_path(&curr_internal, &mov_internal);
+        match path {
+            // The division was valid
+            Some(_) => return Err("Piece in the way."),
+            None    => {}
         }
 
         println!("Moves: {:?}", moves);
@@ -459,6 +464,68 @@ impl ChessGame {
 
         return Err("Failed to find piece...");
     }
+
+    // Check that the given path is clear and there is no piece of the same color in the way.
+    pub fn check_path(&self, start: &(i32,i32), end: &(i32,i32)) -> Option<(i32,i32)> {
+
+        let x_modifier = if start.0 > end.0 {
+            -1
+        } else {
+            1
+        };
+
+        let y_modifier = if start.1 > end.1 {
+            -1
+        } else {
+            1
+        };
+
+
+        // If same x coord and different y, left or right direction.
+        if start.0 == end.0 && start.1 != end.1 {
+            println!("Left or right movement. {:?} {:?}", start, end);
+
+            // TODO: This is shit, what the hell is this, .rev() method make it a diff type. What the frick.
+            // find out the way to properly decide between an increasing range and decreasing range. What the hell.
+            for i in 1..(start.1-end.1).abs() {
+                println!("Checking: {:?}", (end.0, start.1 + i*y_modifier));
+                let res = self.get_piece_at_position((end.0, start.1 + i*y_modifier));
+                match res {
+                    Ok(p) => return Some(p.position),
+                    Err(_) => {}
+                }
+            }
+        }
+
+        // If same y coord and different x, up or down direction.
+        if start.0 != end.0 && start.1 == end.1 {
+            println!("up or down movement. {:?} {:?}",start, end);
+
+            for i in 1..(start.0-end.0).abs() {
+                println!("Checking: {:?}", (start.0 + i*x_modifier, end.1));
+                let res = self.get_piece_at_position((start.0 + i*x_modifier, end.1));
+                match res {
+                    Ok(p) => return Some(p.position),
+                    Err(_) => {}
+                }
+            }
+        }
+
+        // If neither of previous then the movement is diagonal. That is, both coordinates should be different.
+        if start.0 != end.0 && start.1 != end.1 {
+            println!("diagonal movement. {:?} {:?}", start, end);
+            for i in 1..(start.0-end.0).abs() {
+                println!("Checking: {:?}", (start.0 + i*x_modifier, start.1 + i*y_modifier));
+                let res = self.get_piece_at_position((start.0 + i*x_modifier, start.1 + i*y_modifier));
+                match res {
+                    Ok(p) => return Some(p.position),
+                    Err(_) => {}
+                }
+            }
+        }
+
+        return None;
+    }
 }
 
 impl std::fmt::Display for ChessGame {
@@ -467,7 +534,8 @@ impl std::fmt::Display for ChessGame {
     }
 }
 
-pub fn _convert_piece_to_string (piece: ChessPiece, ) -> String {
+// Converts the given piece to a String representation.
+pub fn _convert_piece_to_string (piece: ChessPiece) -> String {
     let piece_type = format!("{:?}", piece.piece_type);
     let (first, _) = piece_type.split_at(2);
     let piece_name = first.to_string();
@@ -475,6 +543,7 @@ pub fn _convert_piece_to_string (piece: ChessPiece, ) -> String {
     return piece_name;
 }
 
+// Returns the character representation of the given chesspiece.
 pub fn convert_piece_to_symbol (piece: &ChessPiece) -> char {
     let raw_index = piece.piece_type as usize + 6*piece.color as usize;
 
@@ -496,4 +565,12 @@ pub fn convert_user_coord (coord: (char,char)) -> (i32,i32){
     };
 
     return (x, 8 - y);
+}
+
+// Check that the given coordinate is in the range of possible board coordinates.
+pub fn coord_on_board (coord: &(i32, i32)) -> bool{
+    if coord.0 < 0 || coord.1 < 0 || coord.0 > 8 || coord.1 > 8 {
+        return false;
+    }
+    return true;
 }
