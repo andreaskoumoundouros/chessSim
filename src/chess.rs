@@ -30,7 +30,7 @@ impl std::fmt::Display for PieceType {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Colors {
     Black,
     White
@@ -304,13 +304,17 @@ impl ChessPiece {
             },
             PieceType::Pawn => {
                 let mut moves = Vec::new();
+                let mut modifier = 1;
+                if self.color == Colors::Black {modifier = -1;}
+
+                println!("Checking pawn: {:?}", self);
 
                 if !self.has_moved {
-                    let mov = (self.position.0, self.position.1 + 2);
+                    let mov = (self.position.0, self.position.1 + 2*modifier);
                     moves.push(mov);
                 }
 
-                let mov = (self.position.0, self.position.1 + 1);
+                let mov = (self.position.0, self.position.1 + 1*modifier);
                 moves.push(mov);
                 return moves;
             },
