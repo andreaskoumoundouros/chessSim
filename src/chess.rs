@@ -419,13 +419,13 @@ impl ChessGame {
         return ' '; // ■
     }
 
-    // Check for piece at curren location and move it to the new location if it is not occupied.
+    // Check for piece at curren location and move it to the new location if it is not occupied
     pub fn move_piece(&mut self, curr: (char,char), mov: (char, char)) -> Result<bool, &'static str> {
         //Convert coords to internal system.
         let curr_internal = convert_user_coord(curr);
         let mov_internal = convert_user_coord(mov);
 
-        // First check there is a piece at curr.
+        // First check there is a piece at curr
         let ret = self.get_piece_at_position(curr_internal)?;
 
         // Second check that there is open space at mov
@@ -437,7 +437,7 @@ impl ChessGame {
             }
         };
 
-        // Check that the move is legal.
+        // Check that the move is legal
         let moves = ret.get_possible_moves();
         if !moves.contains(&mov_internal) || !coord_on_board(&mov_internal) {
             return Err("Illegal move.");
@@ -445,7 +445,6 @@ impl ChessGame {
 
         let path = self.check_path(&curr_internal, &mov_internal);
         match path {
-            // The division was valid
             Some(_) => return Err("Piece in the way."),
             None    => {}
         }
@@ -465,7 +464,7 @@ impl ChessGame {
         return Err("Failed to find piece...");
     }
 
-    // Check that the given path is clear and there is no piece of the same color in the way.
+    // Check that the given path is clear and there is no piece of the same color in the way
     pub fn check_path(&self, start: &(i32,i32), end: &(i32,i32)) -> Option<(i32,i32)> {
 
         let x_modifier = if start.0 > end.0 {
@@ -481,12 +480,11 @@ impl ChessGame {
         };
 
 
-        // If same x coord and different y, left or right direction.
+        // If same x coord and different y, left or right direction
+        // tfw you have to implement your own half-assed dynamic .rev(), smh
         if start.0 == end.0 && start.1 != end.1 {
             println!("Left or right movement. {:?} {:?}", start, end);
 
-            // TODO: This is shit, what the hell is this, .rev() method make it a diff type. What the frick.
-            // find out the way to properly decide between an increasing range and decreasing range. What the hell.
             for i in 1..(start.1-end.1).abs() {
                 println!("Checking: {:?}", (end.0, start.1 + i*y_modifier));
                 let res = self.get_piece_at_position((end.0, start.1 + i*y_modifier));
