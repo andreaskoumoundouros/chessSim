@@ -1,6 +1,6 @@
 //TODO: Find a way to implement the GameBoard functionality so that we can have a gameboard with both empty spaces and references to game pieces at any given "square".
 
-static ASCII_LOWER: [char; 26] = [
+static _ASCII_LOWER: [char; 26] = [
     'a', 'b', 'c', 'd', 'e', 
     'f', 'g', 'h', 'i', 'j', 
     'k', 'l', 'm', 'n', 'o',
@@ -9,12 +9,12 @@ static ASCII_LOWER: [char; 26] = [
     'z',
 ];
 
-static SYMBOL_MAP: [char; 12] = [
+static _SYMBOL_MAP: [char; 12] = [
     '♔','♕','♘','♗','♖','♙',
     '♚','♛','♞','♝','♜','♟'
 ];
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum PieceType {
     King,
     Queen,
@@ -38,9 +38,9 @@ pub enum Colors {
 
 #[derive(Debug)]
 pub struct ChessPiece {
-    position:  (i32, i32),
-    piece_type: PieceType,
-    color: Colors,
+    pub position:  (i32, i32),
+    pub piece_type: PieceType,
+    pub color: Colors,
     in_play: bool,
     has_moved: bool
 }
@@ -56,9 +56,9 @@ impl ChessPiece {
         }
     }
 
-    pub fn _get_null_piece() -> ChessPiece {
-        return ChessPiece::new((-1, -1), PieceType::Pawn, Colors::Black)
-    }
+    // pub fn _get_null_piece() -> ChessPiece {
+    //     return ChessPiece::new((-1, -1), PieceType::Pawn, Colors::Black)
+    // }
 
     pub fn update_position(&mut self, position: (i32, i32)) {
         self.position = position;
@@ -319,6 +319,10 @@ impl ChessPiece {
 
         return valid_moves;
     }
+
+    pub fn get_position(&self) -> (i32, i32) {
+        return self.position;
+    }
 }
 
 impl std::fmt::Display for ChessPiece {
@@ -346,115 +350,139 @@ impl ChessGame {
            turns: 1
         };
 
-        // The coordinates start in the bottom left and increase with y vertically and x horizontally.
-        Self::init_game_piece(&mut new_game, (0,0), PieceType::Rook, Colors::White);
-        Self::init_game_piece(&mut new_game, (0,7), PieceType::Rook, Colors::Black);
+        let mut initialize_pieces = || -> tetra::Result {
+            // // The coordinates start in the bottom left and increase with y vertically and x horizontally.
+            Self::init_game_piece(&mut new_game, (0,0), PieceType::Rook, Colors::White)?;
+            Self::init_game_piece(&mut new_game, (0,7), PieceType::Rook, Colors::Black)?;
 
-        Self::init_game_piece(&mut new_game, (1,7), PieceType::Knight, Colors::Black);
-        Self::init_game_piece(&mut new_game, (1,0), PieceType::Knight, Colors::White);
+            Self::init_game_piece(&mut new_game, (1,7), PieceType::Knight, Colors::Black)?;
+            Self::init_game_piece(&mut new_game, (1,0), PieceType::Knight, Colors::White)?;
 
-        Self::init_game_piece(&mut new_game, (2,0), PieceType::Bishop, Colors::White);
-        Self::init_game_piece(&mut new_game, (2,7), PieceType::Bishop, Colors::Black);
+            Self::init_game_piece(&mut new_game, (2,0), PieceType::Bishop, Colors::White)?;
+            Self::init_game_piece(&mut new_game, (2,7), PieceType::Bishop, Colors::Black)?;
 
-        Self::init_game_piece(&mut new_game, (3,0), PieceType::Queen, Colors::White);
-        Self::init_game_piece(&mut new_game, (3,7), PieceType::Queen, Colors::Black);
+            Self::init_game_piece(&mut new_game, (3,0), PieceType::Queen, Colors::White)?;
+            Self::init_game_piece(&mut new_game, (3,7), PieceType::Queen, Colors::Black)?;
 
-        Self::init_game_piece(&mut new_game, (4,0), PieceType::King, Colors::White);
-        Self::init_game_piece(&mut new_game, (4,7), PieceType::King, Colors::Black);
+            Self::init_game_piece(&mut new_game, (4,0), PieceType::King, Colors::White)?;
+            Self::init_game_piece(&mut new_game, (4,7), PieceType::King, Colors::Black)?;
 
-        Self::init_game_piece(&mut new_game, (5,0), PieceType::Bishop, Colors::White);
-        Self::init_game_piece(&mut new_game, (5,7), PieceType::Bishop, Colors::Black);
+            Self::init_game_piece(&mut new_game, (5,0), PieceType::Bishop, Colors::White)?;
+            Self::init_game_piece( &mut new_game, (5,7), PieceType::Bishop, Colors::Black)?;
 
-        Self::init_game_piece(&mut new_game, (6,0), PieceType::Knight, Colors::White);
-        Self::init_game_piece(&mut new_game, (6,7), PieceType::Knight, Colors::Black);
+            Self::init_game_piece(&mut new_game, (6,0), PieceType::Knight, Colors::White)?;
+            Self::init_game_piece(&mut new_game, (6,7), PieceType::Knight, Colors::Black)?;
 
-        Self::init_game_piece(&mut new_game, (7,0), PieceType::Rook, Colors::White);
-        Self::init_game_piece(&mut new_game, (7,7), PieceType::Rook, Colors::Black);
+            Self::init_game_piece(&mut new_game, (7,0), PieceType::Rook, Colors::White)?;
+            Self::init_game_piece(&mut new_game, (7,7), PieceType::Rook, Colors::Black)?;
 
-        for i in 0..8 {
-            Self::init_game_piece(&mut new_game, (i, 1), PieceType::Pawn, Colors::White);
-            Self::init_game_piece(&mut new_game, (i, 6), PieceType::Pawn, Colors::Black);
+            for i in 0..8 {
+                Self::init_game_piece(&mut new_game, (i, 1), PieceType::Pawn, Colors::White)?;
+                Self::init_game_piece(&mut new_game, (i, 6), PieceType::Pawn, Colors::Black)?;
+            }
+            Ok(())
+        };
+
+        if let Err(_err) = initialize_pieces() {
+            println!("Failed to initalize a piece.");
         }
+        
 
         return new_game;
     }
 
-    fn init_game_piece(game: &mut ChessGame, coord: (i32,i32), piece_type: PieceType, color: Colors) {
-        
+    fn init_game_piece(game: &mut ChessGame, coord: (i32,i32), piece_type: PieceType, color: Colors) -> tetra::Result {
+
         let temp = ChessPiece::new(coord, piece_type, color);
         game.pieces.push(temp);
+
+        return Ok(());
     }
 
-    pub fn print_board(&self) {
+    pub fn _print_board(&self) {
         for i in 0..8 {
             print!("{} |", 8-i);
             for j in 0..8 {
-                print!("[{}]", self.get_symbol_at_position((j,i)));
+                print!("[{}]", self._get_symbol_at_position((j,i)));
             }
             println!();
         }
 
         print!("  ");
         for i in 0..8 {
-            print!("  {}", ASCII_LOWER[i]);
+            print!("  {}", _ASCII_LOWER[i]);
         }
         println!();
     }
 
-    pub fn get_piece_at_position(&self, coords: (i32, i32)) -> Result<&ChessPiece, &'static str> {
+    pub fn get_piece_at_position(&self, coords: &(i32, i32)) -> Result<&ChessPiece, &'static str> {
+        println!("{:?} ", coords);
         for elem in &self.pieces {
-            if elem.position == coords {
+            if elem.position == *coords {
                 return Ok(elem);
             }
         }
         return Err("No Piece at given position.");
     }
 
-    pub fn get_symbol_at_position(&self, coords: (i32, i32)) -> char {
+    pub fn _get_symbol_at_position(&self, coords: (i32, i32)) -> char {
         for elem in &self.pieces {
             if elem.position == coords {
-                return convert_piece_to_symbol(elem);
+                return _convert_piece_to_symbol(elem);
             }
         }
         return ' '; // ■
     }
 
     // Check for piece at curren location and move it to the new location if it is not occupied
-    pub fn move_piece(&mut self, curr: (char,char), mov: (char, char)) -> Result<bool, &'static str> {
+    pub fn move_piece(&mut self, curr: (i32,i32), mov: (i32,i32)) -> Result<bool, &'static str> {
         //Convert coords to internal system.
-        let curr_internal = convert_user_coord(curr);
-        let mov_internal = convert_user_coord(mov);
+        //let curr_internal = convert_user_coord(curr);
+        //let mov_internal = convert_user_coord(mov);
+        println!("{:?} {:?}", curr, mov);
 
         // First check there is a piece at curr
-        let ret = self.get_piece_at_position(curr_internal)?;
+        let ret = self.get_piece_at_position(&curr)?;
 
         // Second check that there is open space at mov
-        let space = self.get_piece_at_position(mov_internal);
+        let space = self.get_piece_at_position(&mov);
         match space {
-            Err(_) => println!("({},{})", mov.0,mov.1),
-            Ok(_) => {
-                return Err("There is a piece at the selected move location.");
+            Err(e) => println!("({},{})", mov.0,mov.1),
+            Ok(p) => {
+                if p.color == ret.color {
+                    return Err("There is a same color piece at the selected move location.");
+                }
             }
         };
 
         // Check that the move is legal
         let moves = ret.get_possible_moves();
-        if !moves.contains(&mov_internal) || !coord_on_board(&mov_internal) {
+        if !moves.contains(&mov) || !coord_on_board(&mov) {
             return Err("Illegal move.");
         }
 
-        let path = self.check_path(&curr_internal, &mov_internal);
-        match path {
-            Some(_) => return Err("Piece in the way."),
-            None    => {}
+        if (ret.piece_type != PieceType::Knight){
+            let path = self.check_path(&curr, &mov);
+            match path {
+                Some(_) => return Err("Piece in the way."),
+                None    => {}
+            }
         }
+        
 
         println!("Moves: {:?}", moves);
 
+        for i in 0..self.pieces.len() {
+            if self.pieces[i].position == mov {
+                self.pieces.remove(i as usize);
+                break;
+            }
+        }
+
         //Update the piece
-        for i in 0..33 {
-            if self.pieces[i].position == curr_internal {
-                self.pieces[i].update_position(mov_internal);
+        for i in 0..self.pieces.len() {
+            if self.pieces[i].position == curr {
+                self.pieces[i].update_position(mov);
                 self.pieces[i].has_moved = true;
                 println!("Moving Piece...");
                 return Ok(true);
@@ -487,7 +515,7 @@ impl ChessGame {
 
             for i in 1..(start.1-end.1).abs() {
                 println!("Checking: {:?}", (end.0, start.1 + i*y_modifier));
-                let res = self.get_piece_at_position((end.0, start.1 + i*y_modifier));
+                let res = self.get_piece_at_position(&(end.0, start.1 + i*y_modifier));
                 match res {
                     Ok(p) => return Some(p.position),
                     Err(_) => {}
@@ -501,7 +529,7 @@ impl ChessGame {
 
             for i in 1..(start.0-end.0).abs() {
                 println!("Checking: {:?}", (start.0 + i*x_modifier, end.1));
-                let res = self.get_piece_at_position((start.0 + i*x_modifier, end.1));
+                let res = self.get_piece_at_position(&(start.0 + i*x_modifier, end.1));
                 match res {
                     Ok(p) => return Some(p.position),
                     Err(_) => {}
@@ -514,7 +542,7 @@ impl ChessGame {
             println!("diagonal movement. {:?} {:?}", start, end);
             for i in 1..(start.0-end.0).abs() {
                 println!("Checking: {:?}", (start.0 + i*x_modifier, start.1 + i*y_modifier));
-                let res = self.get_piece_at_position((start.0 + i*x_modifier, start.1 + i*y_modifier));
+                let res = self.get_piece_at_position(&(start.0 + i*x_modifier, start.1 + i*y_modifier));
                 match res {
                     Ok(p) => return Some(p.position),
                     Err(_) => {}
@@ -542,16 +570,16 @@ pub fn _convert_piece_to_string (piece: ChessPiece) -> String {
 }
 
 // Returns the character representation of the given chesspiece.
-pub fn convert_piece_to_symbol (piece: &ChessPiece) -> char {
+pub fn _convert_piece_to_symbol (piece: &ChessPiece) -> char {
     let raw_index = piece.piece_type as usize + 6*piece.color as usize;
 
-    return SYMBOL_MAP[raw_index];
+    return _SYMBOL_MAP[raw_index];
 }
 
 // Converts the coords as seen by the user into the coordinate system used by the program.
-pub fn convert_user_coord (coord: (char,char)) -> (i32,i32){
+pub fn _convert_user_coord (coord: (char,char)) -> (i32,i32){
     let mut x = -1;
-    for (index,elem) in ASCII_LOWER.iter().enumerate() {
+    for (index,elem) in _ASCII_LOWER.iter().enumerate() {
         if coord.0 == *elem {
             x = index as i32;
         }
